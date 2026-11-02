@@ -74,6 +74,65 @@ pub fn find_cookie(curl: &str, name: &str) -> Option<String> {
     None
 }
 
+/// `ack-bot set-session`: store the xoxc token and `d` cookie pasted straight in,
+/// for when they were copied from DevTools by hand instead of from a cURL capture.
+/// Any value not given as a flag is asked for with hidden input, which keeps it out
+/// of shell history.
+pub fn set_session(
+    token_argument: Option<String>,
+    cookie_argument: Option<String>,
+    ds_cookie_argument: Option<String>,
+) -> i32 {
+    let ask_hidden = |label: &str| -> String {
+        rpassword::prompt_password(label)
+            .unwrap_or_else(|e| die(format!("cannot read input: {e}")))
+            .trim()
+            .to_string()
+    };
+    let token = token_argument
+        .unwrap_or_else(|| ask_hidden("xoxc- token (hidden, paste + Enter): "))
+        .trim()
+        .to_string();
+    if !token.starts_with("xoxc-") {
+        die("the token must start with xoxc- (Slack in a browser -> DevTools console, see README)");
+    }
+    let cookie = cookie_argument
+        .unwrap_or_else(|| ask_hidden("d cookie, xoxd-... (hidden, paste + Enter): "))
+        .trim()
+        .to_string();
+    if !cookie.starts_with("xoxd-") {
+        die(
+            "the cookie must start with xoxd- (DevTools -> Application -> Cookies -> https://app.slack.com -> d)",
+        );
+    }
+
+    let mut lines: Vec<(String, String)> = vec![
+        ("SLACK_CLIENT_TOKEN".to_string(), token),
+        ("SLACK_D_COOKIE".to_string(), cookie),
+    ];
+    if let Some(ds_cookie) = ds_cookie_argument
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+    {
+        lines.push(("SLACK_DS_COOKIE".to_string(), ds_cookie));
+    }
+    let path = tokens::env_path().to_path_buf();
+    if let Err(e) = tokens::update_env(&lines, &path) {
+        die(format!("cannot write {}: {e}", path.display()));
+    }
+    println!(
+        "wrote {} to {} (chmod 600)",
+        lines
+            .iter()
+            .map(|(k, _)| k.as_str())
+            .collect::<Vec<_>>()
+            .join(", "),
+        path.display()
+    );
+    println!("check it with: ack-bot --test --dry-run");
+    0
+}
+
 /// Form fields, whether the body was copied as multipart or urlencoded.
 pub fn find_fields(curl: &str) -> HashMap<String, String> {
     let mut fields: HashMap<String, String> = HashMap::new();

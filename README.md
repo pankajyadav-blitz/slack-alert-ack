@@ -145,13 +145,44 @@ That puts `ack-bot` in `~/.local/bin` (`ACK_BOT_INSTALL_DIR` to change) and, if
 you have none, a starter `~/.slack/config.yaml`. Then:
 
     ack-bot get-user-token          # browser OAuth -> writes SLACK_USER_TOKEN to ~/.slack/env
-    ack-bot import-session capture.txt --write   # browser session, for pressing buttons
+    ack-bot set-session             # paste the browser session (see below), for pressing buttons
     ack-bot paths                   # check what is set
     ack-bot --dry-run -v            # watch without acking
     ack-bot                         # run it
 
     ack-bot update                  # later: update to the newest release
     ack-bot uninstall               # remove the binary (keeps ~/.slack)
+
+### The browser session (xoxc token + d cookie)
+
+Most alert buttons can only be pressed the way the Slack web client presses them,
+so ack-bot needs your browser session. Open **https://app.slack.com** in Chrome or
+Edge, logged in to the workspace, then:
+
+1. **Token (`xoxc-...`)**: press F12 → **Console** tab, paste this and press Enter:
+
+       JSON.parse(localStorage.localConfig_v2).teams[JSON.parse(localStorage.localConfig_v2).lastActiveTeamId].token
+
+   Copy the printed `xoxc-...` value (without the quotes). If Chrome blocks
+   pasting, type `allow pasting` first.
+2. **Cookie (`xoxd-...`)**: F12 → **Application** tab (Firefox: **Storage**) →
+   **Cookies** → `https://app.slack.com` → the row named **`d`** → copy its
+   **Value** (starts with `xoxd-`). Copy it as shown, `%2F` and all.
+   Only some SSO workspaces also need the row **`d-s`**.
+3. Store both:
+
+       ack-bot set-session            # asks for each, hidden input, paste + Enter
+
+   or in one line (it lands in shell history):
+
+       ack-bot set-session --token 'xoxc-...' --cookie 'xoxd-...'
+
+4. Check: `ack-bot --test --dry-run` shows the message it would press.
+
+The session lasts until you log out of Slack in that browser; when acks start
+failing with an auth error, repeat these steps. Alternatively, copy a
+`blocks.actions` request as cURL (Network tab, click any message button) into a
+file and run `ack-bot import-session capture.txt --write`.
 
 ## Releasing
 

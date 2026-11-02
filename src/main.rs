@@ -140,6 +140,19 @@ enum Command {
         #[arg(long, num_args = 0..=1, value_name = "ENVFILE")]
         write: Option<Option<PathBuf>>,
     },
+    /// Store the browser session (xoxc token + d cookie) pasted in directly; values
+    /// not passed as flags are asked for with hidden input
+    SetSession {
+        /// xoxc-... token (omit to be prompted, keeps it out of shell history)
+        #[arg(long, value_name = "XOXC")]
+        token: Option<String>,
+        /// value of the `d` cookie, xoxd-... (omit to be prompted)
+        #[arg(long, value_name = "XOXD")]
+        cookie: Option<String>,
+        /// value of the `d-s` cookie, only some SSO workspaces need it
+        #[arg(long = "ds-cookie", value_name = "VALUE")]
+        ds_cookie: Option<String>,
+    },
     /// Print where config, credentials and state resolved to
     Paths,
     /// Update ack-bot to the latest release (needs git access to the release repo)
@@ -165,6 +178,11 @@ fn main() {
         Some(Command::ImportSession { capture, write }) => {
             std::process::exit(importsession::main(&capture, write))
         }
+        Some(Command::SetSession {
+            token,
+            cookie,
+            ds_cookie,
+        }) => std::process::exit(importsession::set_session(token, cookie, ds_cookie)),
         Some(Command::Paths) => return print_paths(&args),
         Some(Command::Update) => {
             if let Err(error) = update::self_update() {
