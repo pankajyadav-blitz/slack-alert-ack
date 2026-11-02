@@ -1,0 +1,56 @@
+# ack-bot config. install.sh copies this to ~/.slack/config.yaml when that file
+# does not exist yet; edit the copy there.
+
+# Run as your own Slack account: polls conversations.history with your user token,
+# so any channel you are a member of works -- no app invite needed.
+# Needs SLACK_USER_TOKEN in ~/.slack/env (get it with: ack-bot get-user-token).
+user_mode:
+  enabled: true
+  poll_interval: 5       # seconds between passes over the channel list
+  recheck_minutes: 15    # re-read this trailing window so Ack buttons edited in late are caught
+  refresh_on_start: true # renew the rotating user token at startup (full ~12h per run)
+
+# Channels to watch, by name or id (C0123ABCDEF). You must be a member of each.
+channels:
+  - "merchant-growth-app-alerts"
+  - "merchant-growth-infra-alerts"
+
+# Which button counts as the Ack button (regex matched against the button label).
+button_match: '(?i)\back(nowledged?)?\b'
+
+# Only act on messages posted by bots/apps.
+ack_bots_only: true
+
+# true = log what would be acked, send nothing.
+dry_run: false
+
+# Strategy 1: the Ack button is a link button -> fire the HTTP request.
+url_click:
+  enabled: true
+  method: GET
+  timeout: 10
+  # Required: the bot refuses to fire URLs to any host not listed here.
+  allow_hosts:
+    - api.opsgenie.com
+  headers: {}
+
+# Strategy 2: the Ack button is an interactive button -> press it the way the Slack
+# client does. Needs the browser session (SLACK_CLIENT_TOKEN + SLACK_D_COOKIE in
+# ~/.slack/env), imported with: ack-bot import-session capture.txt --write
+slack_click:
+  enabled: true
+  token_env: SLACK_CLIENT_TOKEN
+  cookie_env: SLACK_D_COOKIE
+  verify_attempts: 5
+  verify_delay: 1.5
+
+# Strategy 3: ack through the source tool's own API.
+providers:
+  pagerduty:
+    enabled: false
+    token_env: PAGERDUTY_TOKEN
+    from_email: oncall@example.com
+  opsgenie:
+    enabled: false
+    token_env: OPSGENIE_TOKEN
+    note: auto-acknowledged by slack-alert-ack

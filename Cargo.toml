@@ -1,0 +1,38 @@
+[package]
+name = "slack-alert-ack"
+version = "1.1.0"
+edition = "2024"
+description = "Auto-acknowledge alerts posted to specific Slack channels (Rust port of ack_bot.py)"
+
+# Installed on PATH as `ack-bot`, so it can be run from any directory. Config and
+# credentials are read from ~/.slack/ rather than the working directory.
+[[bin]]
+name = "ack-bot"
+path = "src/main.rs"
+
+[dependencies]
+chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
+clap = { version = "4.6.6", features = ["derive"] }
+# The live dashboard: a full-screen terminal UI shown only when stdout is a real
+# terminal (see src/tui.rs). crossterm is re-exported by ratatui, so the backend
+# and the widgets stay on the same version.
+crossterm = "0.29.0"
+ratatui = "0.30.0"
+regex = "1.13.1"
+reqwest = { version = "0.13.4", features = ["blocking", "json", "multipart", "form", "gzip"] }
+rpassword = "7.5.4"
+rusqlite = { version = "0.40.2", features = ["bundled"] }
+serde = { version = "1.0.229", features = ["derive"] }
+# preserve_order: message_text()/message_urls() walk a message in the order Slack
+# sent it, the way Python's dicts do -- alphabetising keys would reorder the log line.
+serde_json = { version = "1.0.151", features = ["preserve_order"] }
+serde_yaml = "0.9.34"
+sha2 = "0.10"
+signal-hook = "0.4.4"
+tungstenite = { version = "0.30.0", features = ["rustls-tls-webpki-roots"] }
+url = "2.5.8"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
