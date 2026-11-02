@@ -1,10 +1,10 @@
 #!/bin/sh
-# Install ack-bot with your normal git access to the repo (no token needed):
-#   rm -rf /tmp/ack-bot-install && git clone -q --depth 1 -b release git@github.com:pankajyadav-blitz/slack-alert-ack.git /tmp/ack-bot-install && sh /tmp/ack-bot-install/install.sh; rm -rf /tmp/ack-bot-install
+# Install ack-bot (public repo, no GitHub login needed):
+#   rm -rf /tmp/ack-bot-install && git clone -q --depth 1 -b release https://github.com/pankajyadav-blitz/slack-alert-ack.git /tmp/ack-bot-install && sh /tmp/ack-bot-install/install.sh; rm -rf /tmp/ack-bot-install
 # Change the install dir with ACK_BOT_INSTALL_DIR=/usr/local/bin
 set -eu
 
-release_repository_url="${ACK_BOT_REPO_URL:-git@github.com:pankajyadav-blitz/slack-alert-ack.git}"
+release_repository_url="${ACK_BOT_REPO_URL:-https://github.com/pankajyadav-blitz/slack-alert-ack.git}"
 install_dir="${ACK_BOT_INSTALL_DIR:-$HOME/.local/bin}"
 slack_dir="$HOME/.slack"
 

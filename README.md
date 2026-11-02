@@ -136,10 +136,10 @@ panels, status glyphs, keybinding footer).
 
 ## Install (teammates)
 
-Needs git access to `pankajyadav-blitz/slack-alert-ack` (SSH key on GitHub). Linux,
+Public repo, no GitHub login needed. Linux,
 macOS and WSL, x86_64 or arm64; one static binary, no Rust needed.
 
-    rm -rf /tmp/ack-bot-install && git clone -q --depth 1 -b release git@github.com:pankajyadav-blitz/slack-alert-ack.git /tmp/ack-bot-install && sh /tmp/ack-bot-install/install.sh; rm -rf /tmp/ack-bot-install
+    rm -rf /tmp/ack-bot-install && git clone -q --depth 1 -b release https://github.com/pankajyadav-blitz/slack-alert-ack.git /tmp/ack-bot-install && sh /tmp/ack-bot-install/install.sh; rm -rf /tmp/ack-bot-install
 
 That puts `ack-bot` in `~/.local/bin` (`ACK_BOT_INSTALL_DIR` to change) and, if
 you have none, a starter `~/.slack/config.yaml`. Then:

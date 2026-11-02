@@ -8,7 +8,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-const DEFAULT_RELEASE_REPOSITORY_URL: &str = "git@github.com:pankajyadav-blitz/slack-alert-ack.git";
+const DEFAULT_RELEASE_REPOSITORY_URL: &str = "https://github.com/pankajyadav-blitz/slack-alert-ack.git";
 const RELEASE_BRANCH: &str = "release";
 const BINARY_NAME: &str = "ack-bot";
 
